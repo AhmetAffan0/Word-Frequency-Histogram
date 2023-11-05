@@ -10,9 +10,7 @@ import (
 
 type manipulate struct {
 	words map[string]int
-	or    int
-	to    int
-	of    int
+	input []string
 }
 
 func main() {
@@ -24,33 +22,33 @@ func main() {
 
 	m := manipulate{
 		words: map[string]int{},
-		or:    0,
-		to:    0,
-		of:    0,
+		input: []string{},
 	}
 
 	scanner := bufio.NewScanner(text)
 	scanner.Split(bufio.ScanWords)
 
 	for scanner.Scan() {
-		//fmt.Println(scanner.Text())
-		or := strings.Count(strings.ToLower(scanner.Text()), "or")
-		m.or += or
-		to := strings.Count(strings.ToLower(scanner.Text()), "to")
-		m.to += to
-		of := strings.Count(strings.ToLower(scanner.Text()), "of")
-		m.of += of
-
-		m.countWords(scanner.Text(), 0)
+		m.input = strings.Fields(scanner.Text())
+		for _, word := range m.input {
+			_, matched := m.words[word]
+			if matched {
+				m.words[word] += 1
+			} else {
+				m.words[word] = 1
+			}
+		}
 	}
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(m.or)
-	fmt.Println(m.to)
-	fmt.Println(m.of)
+
+	for index, element := range m.words {
+		fmt.Println(index, "=", element)
+	}
 	fmt.Println(m.words)
+
 }
 
 func (m *manipulate) countWords(text string, turn int) {
