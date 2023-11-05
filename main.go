@@ -66,7 +66,7 @@ func main() {
 	})
 
 	for _, kv := range sortBigToLow {
-		time.Sleep(100 * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 		fmt.Printf("%s-%d\n", kv.Key, kv.Value)
 	}
 
