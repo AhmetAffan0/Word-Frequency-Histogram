@@ -5,12 +5,21 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
+	"sort"
 	"strings"
+	"time"
 )
 
-type manipulate struct {
+type wordsHistogram struct {
 	words map[string]int
 	input []string
+}
+
+var nonAlphanumericRegex = regexp.MustCompile(`[^\p{L}\p{N} ]+`)
+
+func clearString(str string) string {
+	return nonAlphanumericRegex.ReplaceAllString(str, "")
 }
 
 func main() {
@@ -20,7 +29,7 @@ func main() {
 	}
 	defer text.Close()
 
-	m := manipulate{
+	w := wordsHistogram{
 		words: map[string]int{},
 		input: []string{},
 	}
@@ -29,28 +38,44 @@ func main() {
 	scanner.Split(bufio.ScanWords)
 
 	for scanner.Scan() {
-		m.input = strings.Fields(scanner.Text())
-		for _, word := range m.input {
-			_, matched := m.words[word]
+		str := clearString(scanner.Text())
+		w.input = strings.Fields(str)
+		for _, word := range w.input {
+			_, matched := w.words[word]
 			if matched {
-				m.words[word] += 1
+				w.words[word] += 1
 			} else {
-				m.words[word] = 1
+				w.words[word] = 1
 			}
 		}
 	}
 
+	type KeyValue struct {
+		Key   string
+		Value int
+	}
+
+	var sortBigToLow []KeyValue
+
+	for k, v := range w.words {
+		sortBigToLow = append(sortBigToLow, KeyValue{k, v})
+	}
+
+	sort.Slice(sortBigToLow, func(i, j int) bool {
+		return sortBigToLow[i].Value > sortBigToLow[j].Value
+	})
+
+	for _, kv := range sortBigToLow {
+		time.Sleep(100 * time.Millisecond)
+		fmt.Printf("%s-%d\n", kv.Key, kv.Value)
+	}
+
+	fmt.Println(len(w.words))
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-
-	for index, element := range m.words {
-		fmt.Println(index, "=", element)
-	}
-	fmt.Println(m.words)
-
 }
 
-func (m *manipulate) countWords(text string, turn int) {
-	m.words[text] = turn
+func (w *wordsHistogram) countWords(text string, turn int) {
+	w.words[text] = turn
 }
