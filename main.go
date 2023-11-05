@@ -23,7 +23,7 @@ func clearString(str string) string {
 }
 
 func main() {
-	text, err := os.Open("lorem.txt")
+	text, err := os.Open("text.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
