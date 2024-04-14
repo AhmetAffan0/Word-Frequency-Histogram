@@ -9,7 +9,19 @@ import (
 	"sort"
 	"strings"
 	"time"
+
+	"fyne.io/fyne/app"
+	"fyne.io/fyne/v2"
+	"fyne.io/fyne/v2/container"
+	"fyne.io/fyne/v2/layout"
+	"fyne.io/fyne/v2/widget"
 )
+
+func makeUI(textBox *widget.Entry) *fyne.Container {
+	return container.New(layout.NewGridLayout(1),
+		textBox,
+	)
+}
 
 type wordsHistogram struct {
 	words map[string]int
@@ -23,13 +35,16 @@ func clearString(str string) string {
 }
 
 func main() {
+	a := app.New()
+	w := a.NewWindow("Word Frequency Histogram")
+
 	text, err := os.Open("text.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer text.Close()
 
-	w := wordsHistogram{
+	wh := wordsHistogram{
 		words: map[string]int{},
 		input: []string{},
 	}
@@ -39,13 +54,13 @@ func main() {
 
 	for scanner.Scan() {
 		str := clearString(scanner.Text())
-		w.input = strings.Fields(str)
-		for _, word := range w.input {
-			_, matched := w.words[word]
+		wh.input = strings.Fields(str)
+		for _, word := range wh.input {
+			_, matched := wh.words[word]
 			if matched {
-				w.words[word] += 1
+				wh.words[word] += 1
 			} else {
-				w.words[word] = 1
+				wh.words[word] = 1
 			}
 		}
 	}
@@ -57,7 +72,7 @@ func main() {
 
 	var sortBigToLow []KeyValue
 
-	for k, v := range w.words {
+	for k, v := range wh.words {
 		sortBigToLow = append(sortBigToLow, KeyValue{k, v})
 	}
 
@@ -70,10 +85,12 @@ func main() {
 		fmt.Printf("%s-%d\n", kv.Key, kv.Value)
 	}
 
-	fmt.Println(len(w.words))
+	fmt.Println(len(wh.words))
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+
+	w.ShowAndRun()
 }
 
 func (w *wordsHistogram) countWords(text string, turn int) {
