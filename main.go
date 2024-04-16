@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"image/color"
 	"log"
 	"os"
 	"regexp"
@@ -12,13 +13,15 @@ import (
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
+	"fyne.io/fyne/v2/canvas"
 	"fyne.io/fyne/v2/container"
 	"fyne.io/fyne/v2/layout"
 	"fyne.io/fyne/v2/widget"
 )
 
-func makeUI(textBox *widget.Entry) *fyne.Container {
-	return container.New(layout.NewGridLayout(1),
+func makeUI(text *canvas.Text, textBox *widget.Entry) *fyne.Container {
+	return container.New(layout.NewGridLayout(0),
+		text,
 		textBox,
 	)
 }
@@ -40,7 +43,14 @@ func main() {
 	w.Resize(fyne.NewSize(640, 480))
 
 	input := widget.NewEntry()
-	//input.MultiLine = true
+	input.MultiLine = true
+	input.TextStyle.Bold = true
+	input.TextStyle.Italic = true
+
+	label := canvas.NewText("Word Frequency Histogram", color.NRGBA{175, 175, 175, 255})
+	label.TextSize = 30
+	label.Alignment = fyne.TextAlignCenter
+	label.TextStyle = fyne.TextStyle{Italic: false, Bold: true, Monospace: false}
 
 	text, err := os.Open("text.txt")
 	if err != nil {
@@ -88,22 +98,18 @@ func main() {
 
 	for _, kv := range sortBigToLow {
 		time.Sleep(10 * time.Millisecond)
-		progress = fmt.Sprintf("%s-%d\n", kv.Key, kv.Value)
-		fmt.Printf("%s-%d\n", kv.Key, kv.Value)
+		progress += fmt.Sprintf("%s-%d\n", kv.Key, kv.Value)
 	}
 
-	//result := input.Text
-	//result = fmt.Sprintf("%d", len(wh.words))
-
-	fmt.Println(len(wh.words))
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
 
 	input.SetText(progress)
-	//input.SetText(result)
 
-	w.SetContent(makeUI(input))
+	input.Disable()
+
+	w.SetContent(makeUI(label, input))
 
 	w.ShowAndRun()
 }
