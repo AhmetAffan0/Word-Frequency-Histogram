@@ -37,6 +37,10 @@ func clearString(str string) string {
 func main() {
 	a := app.New()
 	w := a.NewWindow("Word Frequency Histogram")
+	w.Resize(fyne.NewSize(640, 480))
+
+	input := widget.NewEntry()
+	input.MultiLine = true
 
 	text, err := os.Open("text.txt")
 	if err != nil {
@@ -80,15 +84,26 @@ func main() {
 		return sortBigToLow[i].Value > sortBigToLow[j].Value
 	})
 
+	progress := input.Text
+
 	for _, kv := range sortBigToLow {
 		time.Sleep(10 * time.Millisecond)
-		fmt.Printf("%s-%d\n", kv.Key, kv.Value)
+		progress = fmt.Sprintf("%s-%d\n", kv.Key, kv.Value)
+		input.SetText(progress)
+		//fmt.Printf("%s-%d\n", kv.Key, kv.Value)
 	}
 
-	fmt.Println(len(wh.words))
+	//result := input.Text
+	//result = fmt.Sprintf("%d", len(wh.words))
+
+	//fmt.Println(len(wh.words))
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
+
+	//input.SetText(result)
+
+	w.SetContent(makeUI(input))
 
 	w.ShowAndRun()
 }
