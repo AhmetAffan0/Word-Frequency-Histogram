@@ -1,2 +1,3 @@
 # Word-Frequency-Histogram
-I got this idea from @tinne26. Once you create a text.txt file, type whatever you want into it and it will read everything you type.
+GUI Application that prints the word frequency of input txt file.
+![image](https://github.com/lidldev/Word-Frequency-Counter/assets/118509044/56be37f1-6a31-49a9-9070-2623e82c9b9b)
