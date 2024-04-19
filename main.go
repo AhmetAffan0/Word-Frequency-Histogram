@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"image/color"
 	"log"
+	"os"
 	"regexp"
 	"sort"
 	"strings"
@@ -18,11 +19,10 @@ import (
 	"fyne.io/fyne/v2/widget"
 )
 
-func makeUI(text *canvas.Text, textBox1, textBox2 *widget.Entry) *fyne.Container {
+func makeUI(text *canvas.Text, textBox *widget.Entry) *fyne.Container {
 	return container.New(layout.NewGridLayout(0),
 		text,
-		textBox1,
-		textBox2,
+		textBox,
 	)
 }
 
@@ -39,7 +39,7 @@ func clearString(str string) string {
 
 func main() {
 	a := app.New()
-	w := a.NewWindow("Word Frequency Histogram")
+	w := a.NewWindow("Word Frequency Counter")
 	w.Resize(fyne.NewSize(640, 480))
 
 	input := widget.NewEntry()
@@ -47,22 +47,23 @@ func main() {
 	input.TextStyle.Bold = true
 	input.TextStyle.Italic = true
 
-	input2 := widget.NewEntry()
-	input2.MultiLine = true
-	input2.TextStyle.Bold = true
-	input2.TextStyle.Italic = true
-
-	label := canvas.NewText("Word Frequency Histogram", color.NRGBA{175, 175, 175, 255})
+	label := canvas.NewText("Word Frequency Counter", color.NRGBA{175, 175, 175, 255})
 	label.TextSize = 30
 	label.Alignment = fyne.TextAlignCenter
 	label.TextStyle = fyne.TextStyle{Italic: false, Bold: true, Monospace: false}
+
+	text, err := os.Open("text.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer text.Close()
 
 	wh := wordsHistogram{
 		words: map[string]int{},
 		input: []string{},
 	}
 
-	scanner := bufio.NewScanner(strings.NewReader(input2.Text))
+	scanner := bufio.NewScanner(text)
 	scanner.Split(bufio.ScanWords)
 
 	for scanner.Scan() {
@@ -108,7 +109,7 @@ func main() {
 
 	input.Disable()
 
-	w.SetContent(makeUI(label, input2, input))
+	w.SetContent(makeUI(label, input))
 
 	w.ShowAndRun()
 }
